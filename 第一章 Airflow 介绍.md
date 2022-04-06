@@ -99,7 +99,7 @@ pip install apache-airflow==2.1.0 --constraint https://gist.githubusercontent.co
 ## Airflow CLI
 
 ```shell
-airflow --help
+airflow [command] --help
 airflow db init
 airflow webserver
 airflow scheduler
