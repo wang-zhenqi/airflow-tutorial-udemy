@@ -7,3 +7,5 @@ airflow.cfg
 airflow-webserver.pid
 webserver_config.py
 .tool-versions
+__pycache__/
+.DS_Store
