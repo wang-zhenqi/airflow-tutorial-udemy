@@ -148,7 +148,7 @@ from datetime import datetime
 
 1. dag_id：所有DAG中的唯一标识
 2. default_args：对DAG中所有operator都生效的参数
-3. schedule_interval, start_date, catchup：
+3. schedule_interval, start_date, catchup
 
 
 
@@ -171,3 +171,20 @@ Airflow Providers 给airflow系统提供了一系列的额外的功能。Provide
 ### 2.2.5. Connection
 
 通过Airflow可以设置与其他系统的连接方式，例如各类数据库、github、aws、facebook等。这些连接方式都需要通过providers提供支持。
+
+
+
+### 2.2.6. Sensor
+
+Sensor是一种特殊的Operator，它可以检测特定的条件，如果满足条件，则会继续运行。
+
+
+
+### 2.2.7. XCOM
+
+XCOM 是一种tasks间通信的方式，简单地说，一个task在运行的过程中，将数据存储至Airflow的meta database，以task_id为主键，存储的内容为一个个键值对。另一个task就可以通过访问task_id来读取这个数据。
+
+
+
+## 2.3 Time & Scheduling
+
