@@ -7,6 +7,8 @@ from airflow.operators.bash import BashOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.mysql.operators.mysql import MySqlOperator
+from airflow.providers.mysql.hooks.mysql import MySqlHook
+from airflow.hooks.base import BaseHook
 
 from pandas import json_normalize
 
@@ -35,6 +37,13 @@ def _processing_user(ti):
                           header=False)
 
 
+def _store_user():
+    connection = BaseHook.get_connection('local_mysql')
+    hook = MySqlHook(connection=connection)
+    hook.bulk_load_custom(table='users', tmp_file='/tmp/processed_user.csv',
+                          extra_options='FIELDS TERMINATED BY \',\' ENCLOSED BY \'"\' LINES TERMINATED BY \'\r\'')
+
+
 with DAG(dag_id='user_processing',
          schedule_interval='@daily',
          default_args=default_args,
@@ -45,7 +54,7 @@ with DAG(dag_id='user_processing',
         mysql_conn_id='local_mysql',
         sql='''
             CREATE TABLE IF NOT EXISTS users (
-                email INTEGER PRIMARY KEY NOT NULL,
+                email VARCHAR(100) PRIMARY KEY NOT NULL,
                 firstname TEXT NOT NULL,
                 lastname TEXT NOT NULL,
                 country TEXT NOT NULL,
@@ -75,16 +84,21 @@ with DAG(dag_id='user_processing',
         python_callable=_processing_user
     )
 
-    storing_user = MySqlOperator(
+    # storing_user = MySqlOperator(
+    #     task_id='storing_user',
+    #     mysql_conn_id='local_mysql',
+    #     sql='''
+    #         LOAD DATA LOCAL INFILE '/tmp/processed_user.csv'
+    #         INTO TABLE users
+    #         FIELDS TERMINATED BY ','
+    #         ENCLOSED BY '"'
+    #         LINES TERMINATED BY '\r';
+    #     '''
+    # )
+
+    storing_user = PythonOperator(
         task_id='storing_user',
-        mysql_conn_id='local_mysql',
-        sql='''
-            LOAD DATA LOCAL INFILE '/tmp/processed_user.csv'
-            INTO TABLE users
-            FIELDS TERMINATED BY ','
-            ENCLOSED BY '"'
-            LINES TERMINATED BY '\r';
-        '''
+        python_callable=_store_user
     )
 
     display_results = BashOperator(
