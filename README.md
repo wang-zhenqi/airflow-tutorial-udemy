@@ -203,3 +203,23 @@ Airflow 的 DAG 提供了4个与周期相关的参数：start_date，end_date，
 
 ### 2.3.2 历史流水线处理
 当 DAG 的参数 catchup 设置为 *True* 时，当 start_date 与当前时间之间有未执行的 DAG run 时，会触发 “**backfill**” 特性，即自动触发这些未执行的 DAG run。
+
+## 3. 数据库与执行器
+
+> **"Even it is called 'EXECUTOR', it doesn't execute your tasks."**
+> <br/>-- by the instructor
+
+执行器定义了在何种环境下，如何执行任务。例如本地执行器，远程执行器。它们可以线性执行任务，也可在集群上并行执行任务。
+
+### 3.1 Sequential Executor
+airflow的默认执行器，在本地运行，一次一个任务，依次执行。
+需要在 airflow.cfg 中配置 `executor=SequentialExecutor`，同时使用 SQLite 作为 airflow 的后台数据库。
+
+### 3.2 Local Executor
+本地运行，可以并行执行任务。
+需要在 airflow.cfg 中配置 `executor=LocalExecutor`，同时使用 PostgreSQL、MySQL 等等其他数据库作为 airflow 的后台数据库。
+
+### 3.3 Celery Executor
+Celery 是一个分布式的任务队列。
+可以并行执行任务，任务运行在 Celery 集群上。
+集群中包括

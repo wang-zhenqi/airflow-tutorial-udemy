@@ -23,3 +23,10 @@ LINES TERMINATED BY '\r';
    1. DataGrip：在连接设置->高级中，将‘AllowLoadLocalInfile’设为‘true’;
    2. Airflow Connection: 在extra中添加`{"local_infile": true}`
 
+## Scheduler 在运行中出现`SIGABRT`报错
+该问题会在 MacOS High Sierra 及以上版本出现，这是由于 MacOS 添加了对于多进程、多线程的安全限制。
+解决方案：
+```shell
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+```
+
