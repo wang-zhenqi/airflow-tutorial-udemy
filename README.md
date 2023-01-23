@@ -10,7 +10,7 @@ Because during the data processing, we need to orchestrate the data flow - which
 
 Airflow is an open-source platform to author, schedule, and monitor workflows programmatically.
 
-Airflow is an orchestrater allowing you to execute your tasks at the right time, in the right way, and in the right order. It can connect to so many platforms to trigger them to work as planned.
+Airflow is an orchestrator allowing you to execute your tasks at the right time, in the right way, and in the right order. It can connect to so many platforms to trigger them to work as planned.
 
 ### 1.2.1. Core components
 
@@ -202,7 +202,7 @@ Hook 是一个介于 Operator 和外部工具之间的桥梁，简化了它们�
 Airflow 的 DAG 提供了4个与周期相关的参数：start_date，end_date，schedule_interval 以及 catchup。
 
 ### 2.3.2 历史流水线处理
-当 DAG 的参数 catchup 设置为 *True* 时，当 start_date 与当前时间之间有未执行的 DAG run 时，会触发 “**backfill**” 特性，即自动触发这些未执行的 DAG run。
+当 DAG 的参数 catchup 设置为 *True* 时，当 start_date 与当前时间之间有未执行的 DAG run 时，会触发 “**back-fill**” 特性，即自动触发这些未执行的 DAG run。
 
 ## 3. 数据库与执行器
 
