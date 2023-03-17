@@ -213,13 +213,30 @@ Airflow 的 DAG 提供了4个与周期相关的参数：start_date，end_date，
 
 ### 3.1 Sequential Executor
 airflow的默认执行器，在本地运行，一次一个任务，依次执行。
+
 需要在 airflow.cfg 中配置 `executor=SequentialExecutor`，同时使用 SQLite 作为 airflow 的后台数据库。
 
 ### 3.2 Local Executor
 本地运行，可以并行执行任务。
+
 需要在 airflow.cfg 中配置 `executor=LocalExecutor`，同时使用 PostgreSQL、MySQL 等等其他数据库作为 airflow 的后台数据库。
 
 ### 3.3 Celery Executor
 Celery 是一个分布式的任务队列。
-可以并行执行任务，任务运行在 Celery 集群上。
-集群中包括
+
+可以并行执行任务，任务运行在 Celery 集群上。 集群中除了 Airflow 固有的 Web Server、Scheduler 和数据库之外，还有多个 Worker 节点以及一个消息队列。
+
+Celery 主要由一个 broker 和 一个 result backend 组成。Broker 用于接收任务，result backend 用于记录运行结果。
+
+使用 Celery executor 的好处是 Airflow scheduler 可以将任务分发到多个 worker 上并行运行。分发机制如下：
+
+1. Airflow scheduler 将任务发布至 Celery broker
+2. Worker 从 broker 处获取到任务并执行
+3. Worker 将结果返回到 result backend
+4. Airflow scheduler 获取到任务执行的状态，在后台数据库和 web server 上显示
+
+使用 Celery executor 需要配置：
+1. core.executor='CeleryExecutor'
+2. database.sql_alchemy_conn='{database_connection_string}'
+3. celery.result_backend='{database_connection_string}'
+4. celery.broker_url='{broker_url}'
