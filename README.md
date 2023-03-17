@@ -125,11 +125,11 @@ airflow users create -u <username> -p <password> -f <first_name> -l <last_name> 
 
 1. 设置 Python Interpreter，确认 Airflow 包存在，否则需要下载
 
-   <img src=".image/image-20220501095759650.png" alt="设置 python interpreter" style="zoom: 33%;" />
+   <img src="https://zhenqi-imagebed.s3.ap-east-1.amazonaws.com/uploaded_date=2023-03/image-20220501095759650-python-interpreter-39fea8692ed775039676f5e84eec3fc6.png" alt="设置 python interpreter" style="zoom: 33%;" />
 
 2. 设置 Run/Debug Configurations
 
-   <img src=".image/image-20220501100000669.png" alt="设置 run/debug configuration" style="zoom:33%;" />
+   <img src="https://zhenqi-imagebed.s3.ap-east-1.amazonaws.com/uploaded_date=2023-03/image-20220501100000669-run-debug-conf-b2d81d5b7dd5c753ce3c8acbcb75a360.png" alt="设置 run/debug configuration" style="zoom:33%;" />
 
 
 
