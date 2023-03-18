@@ -202,6 +202,7 @@ Hook 是一个介于 Operator 和外部工具之间的桥梁，简化了它们�
 Airflow 的 DAG 提供了4个与周期相关的参数：start_date，end_date，schedule_interval 以及 catchup。
 
 ### 2.3.2 历史流水线处理
+
 当 DAG 的参数 catchup 设置为 *True* 时，当 start_date 与当前时间之间有未执行的 DAG run 时，会触发 “**back-fill**” 特性，即自动触发这些未执行的 DAG run。
 
 ## 3. 数据库与执行器
@@ -212,19 +213,24 @@ Airflow 的 DAG 提供了4个与周期相关的参数：start_date，end_date，
 执行器定义了在何种环境下，如何执行任务。例如本地执行器，远程执行器。它们可以线性执行任务，也可在集群上并行执行任务。
 
 ### 3.1 Sequential Executor
+
 airflow的默认执行器，在本地运行，一次一个任务，依次执行。
 
 需要在 airflow.cfg 中配置 `executor=SequentialExecutor`，同时使用 SQLite 作为 airflow 的后台数据库。
 
 ### 3.2 Local Executor
+
 本地运行，可以并行执行任务。
 
 需要在 airflow.cfg 中配置 `executor=LocalExecutor`，同时使用 PostgreSQL、MySQL 等等其他数据库作为 airflow 的后台数据库。
 
 ### 3.3 Celery Executor
+
 Celery 是一个分布式的任务队列。
 
 可以并行执行任务，任务运行在 Celery 集群上。 集群中除了 Airflow 固有的 Web Server、Scheduler 和数据库之外，还有多个 Worker 节点以及一个消息队列。
+
+#### 3.3.1 Celery 组件
 
 Celery 主要由一个 broker 和 一个 result backend 组成。Broker 用于接收任务，result backend 用于记录运行结果。
 
@@ -240,3 +246,9 @@ Celery 主要由一个 broker 和 一个 result backend 组成。Broker 用于�
 2. database.sql_alchemy_conn='{database_connection_string}'
 3. celery.result_backend='{database_connection_string}'
 4. celery.broker_url='{broker_url}'
+
+#### 3.3.2 消息队列
+
+消息队列，顾名思义，就是一个用来给消息排队的机制。在 Airflow 的语境中，队列中存放的是一个个的任务。默认地，按照先进先出的原则，队列中的任务被各 worker 节点提取并执行。
+
+特别地，我们可以根据 worker 节点的特点，为不同的消息队列选择默认的 worker。例如可以将计算密集型的任务都分发到特定的队列，最终被 CPU 资源丰富的 worker 所消费。
