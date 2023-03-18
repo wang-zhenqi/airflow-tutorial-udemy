@@ -216,6 +216,9 @@ airflow的默认执行器，在本地运行，一次一个任务，依次执行�
 
 需要在 airflow.cfg 中配置 `executor=LocalExecutor`，同时使用 PostgreSQL、MySQL 等等其他数据库作为 airflow 的后台数据库。
 
+这里不使用 SQLite 作为后台数据库的原因是，SQLite 在同一时间只能支持一个写操作，而 local executor 可以并行运行任务，因此可能会在同一时刻产
+生多个写操作。同理，下文中的 celery executor 也不能使用 SQLite。
+
 ### 3.3 Celery Executor
 
 Celery 是一个分布式的任务队列。
