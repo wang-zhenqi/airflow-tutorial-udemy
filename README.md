@@ -257,8 +257,66 @@ CPU 资源丰富的 worker 所消费。
 
 ```python
 task = BashOperator(
-   task_id='task_1',
-   queue='high_cpu',
-   bash_command='sleep 1'
+    task_id='task_1',
+    queue='high_cpu',
+    bash_command='sleep 1'
 )
 ```
+
+## 4. Dataset
+
+### 4.1 案例分析
+
+在开发过程中，可能会出现以下几种情况：
+
+1. DAG_a 向数据库中写入数据，当写入完成后，需要触发 DAG_b
+2. DAG_a 进行文件操作，操作完成后需要触发 DAG_b
+
+前两种情况可以通过 trigger 或者 sensor 来或主动或被动地启动 DAG_b，但往往代码编写比较复杂。使用 Dataset 作为触发条件可以利用到 Airflow
+的监测机制，方便追踪 DAG 间基于数据集变化的依赖关系。
+
+### 4.2 Dataset
+
+Airflow 中的 Dataset 类是数据集合的抽象，例如文件、数据库表，不论是本地的还是远端的，都可以看作一个 Dataset。
+
+Dataset 有两个重要属性：
+
+1. uri: 数据集的位置，用作唯一标识符。可以是文件系统中的位置、网络位置、S3 bucket 等等。所有字符必须在 ASCII
+   集里，大小写敏感，不能以 `airflow://` 开头。
+2. extra: dict 类型，可以包含任意的描述信息，相当于 Dataset 的元数据。
+
+### 4.3 schedule 参数
+
+在 Airflow 2.4 之前，DAG 的调度通过 `schedule_interval` 或者 `timetable` 参数设置，从 Airflow 2.4 起，这两个参数都已过时，而改用
+`schedule` 参数。该参数除了可以接收 cron 表达式，timedelta, timetable 等，还可以接收 Dateset。
+
+如果 schedule 的参数是一个 Dataset 的 list，那么就表示该 DAG 是依赖于列表中的 Dataset 的，只有当列表中所有的 Dataset 都更新之后，该 DAG
+才会被触发。
+
+### 4.4 task 描述符
+通过 `@task` 描述符可以将一个 function 定义为一个 DAG 中的任务。该描述符的 `outlets` 参数则定义了要跟踪的 Dataset。实例：
+
+```python
+my_file = Dataset(uri='path/to/the/file')
+
+@task(outlets=[my_file])
+def update_dataset():
+    with open(my_file.uri, 'a+') as f:
+        f.write('producer update\n')
+```
+
+### 4.5 Dataset 的局限性
+
+1. Dataset 不能与其他 schedule 的定义一起使用，例如 cron 表达式。
+2. 如果两个 DAG 均要更新同一个 Dataset，那么当一次 Dataset 更新成功时，下游的 DAG 会被立即触发，并不会等两个 DAG 都更新完才触发。
+3. Airflow 只能追踪在其上下文内的 Dataset 变化，但如果因其他原因，Dataset 所指向的数据集发生了变化，Airflow 是没法察觉的。
+4. 一个 Dataset 只能存在于一个 Airflow 的实例中，不能用一个实例中的 Dataset 触发另一个实例中的 DAG。
+5. Airflow 只判断 Dataset 是否被成功更新，并不知道更新的数据是否有效。
+
+## 5 Sub-DAG 和 TaskGroup
+
+### 5.1 案例分析
+
+同一个 DAG 中的不同 task 由不同的开发人员异步开发，需要在其他 task 尚未被开发完成时单独测试某一 task。
+
+这种情况可以将一个 DAG 中的任务划分为多个任务组（TaskGroups），每个任务组可以单独测试、运行。
