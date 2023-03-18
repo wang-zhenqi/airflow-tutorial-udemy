@@ -2,13 +2,13 @@ import json
 from datetime import datetime
 
 from airflow.models import DAG
-from airflow.operators.python import PythonOperator
-from airflow.operators.bash import BashOperator
+from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash_operator import BashOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.http.sensors.http import HttpSensor
 from airflow.providers.mysql.operators.mysql import MySqlOperator
 from airflow.providers.mysql.hooks.mysql import MySqlHook
-from airflow.hooks.base import BaseHook
+from airflow.hooks.base_hook import BaseHook
 
 from pandas import json_normalize
 
